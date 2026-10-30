@@ -1,0 +1,86 @@
+{
+  "github": [
+    {
+      "check": "GitHub authorize endpoint, called with a fake client_id",
+      "ok": true,
+      "at": "2026-10-30T13:12:15.654Z",
+      "result": "HTTP 302, redirects to github.com/login. Endpoint is live."
+    },
+    {
+      "check": "GitHub 'new OAuth App' page (expect a login redirect)",
+      "ok": true,
+      "at": "2026-10-30T13:12:15.655Z",
+      "result": "HTTP 302, redirects to github.com/login"
+    }
+  ],
+  "notion": [
+    {
+      "check": "Notion authorize endpoint, called with a fake client_id",
+      "ok": true,
+      "at": "2026-10-30T13:12:16.082Z",
+      "result": "HTTP 302, redirects to app.notion.com/install-integration. Endpoint is live."
+    },
+    {
+      "check": "Notion Developer portal",
+      "ok": true,
+      "at": "2026-10-30T13:12:16.082Z",
+      "result": "HTTP 200"
+    }
+  ],
+  "slack": [
+    {
+      "check": "Slack OIDC discovery document",
+      "ok": true,
+      "at": "2026-10-30T13:12:16.458Z",
+      "result": "authorize: https://slack.com/openid/connect/authorize · token: https://slack.com/api/openid.connect.token · 3 scopes advertised"
+    },
+    {
+      "check": "Slack OAuth v2 authorize, called with a fake client_id",
+      "ok": true,
+      "at": "2026-10-30T13:12:16.458Z",
+      "result": "HTTP 200; page mentions \"client_id=probe-invalid-client&scope=chat:write\". Endpoint is live."
+    }
+  ],
+  "outlook": [
+    {
+      "check": "Microsoft identity platform discovery (/common)",
+      "ok": true,
+      "at": "2026-10-30T13:12:16.792Z",
+      "result": "authorize: https://login.microsoftonline.com/common/oauth2/v2.0/authorize · token: https://login.microsoftonline.com/common/oauth2/v2.0/token · 4 scopes advertised"
+    },
+    {
+      "check": "Microsoft authorize, called with an all-zero client_id",
+      "ok": true,
+      "at": "2026-10-30T13:12:16.793Z",
+      "result": "HTTP 200; page mentions \"Error\". Endpoint is live."
+    }
+  ],
+  "gmail": [
+    {
+      "check": "Google OIDC discovery document",
+      "ok": true,
+      "at": "2026-10-30T13:12:17.214Z",
+      "result": "authorize: https://accounts.google.com/o/oauth2/v2/auth · token: https://oauth2.googleapis.com/token · PKCE: plain, S256 · 3 scopes advertised"
+    },
+    {
+      "check": "Google authorize, called with a fake client_id",
+      "ok": true,
+      "at": "2026-10-30T13:12:17.214Z",
+      "result": "HTTP 302, redirects to accounts.google.com/signin/oauth/error. Endpoint is live."
+    }
+  ],
+  "linkedin": [
+    {
+      "check": "LinkedIn OIDC discovery document",
+      "ok": true,
+      "at": "2026-10-30T13:12:17.451Z",
+      "result": "authorize: https://www.linkedin.com/oauth/v2/authorization · token: https://www.linkedin.com/oauth/v2/accessToken · 3 scopes advertised"
+    },
+    {
+      "check": "LinkedIn authorize, called with a fake client_id",
+      "ok": true,
+      "at": "2026-10-30T13:12:17.451Z",
+      "result": "HTTP 200; page mentions \"error\". Endpoint is live."
+    }
+  ]
+}
