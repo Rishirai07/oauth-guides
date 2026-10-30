@@ -10,13 +10,20 @@ export function modelChain(): string[] {
   return [...new Set([...env, ...DEFAULT_MODELS])];
 }
 
+const REQUEST_TIMEOUT_MS = 45_000;
 let client: GoogleGenAI | null = null;
 function ai(): GoogleGenAI {
   const key = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY is not set");
   // GEMINI_BASE_URL is only for tests (points the SDK at a local fake server).
   const baseUrl = process.env.GEMINI_BASE_URL;
-  return (client ??= new GoogleGenAI({ apiKey: key, ...(baseUrl ? { httpOptions: { baseUrl } } : {}) }));
+  // The SDK's own retries (5 attempts, backoff up to 60s) can stall a run for
+  // minutes without telling anyone. We retry and fall back ourselves, so turn
+  // them off and cap each request.
+  return (client ??= new GoogleGenAI({
+    apiKey: key,
+    httpOptions: { timeout: REQUEST_TIMEOUT_MS, retryOptions: { attempts: 1 }, ...(baseUrl ? { baseUrl } : {}) },
+  }));
 }
 
 export interface GenResult {
@@ -36,7 +43,12 @@ export interface GenOptions {
 }
 
 // Shared across calls in a run, so we don't keep retrying a model or tool that already failed.
-export const runtimeState = { searchBroken: false, workingModel: "" as string };
+export const runtimeState = {
+  searchBroken: false,
+  workingModel: "" as string,
+  // Lets the pipeline show model hiccups in the UI instead of going quiet.
+  onNote: null as null | ((msg: string) => void),
+};
 
 function isModelMissing(e: unknown) {
   const s = String((e as Error)?.message || e);
@@ -45,6 +57,13 @@ function isModelMissing(e: unknown) {
 function isToolProblem(e: unknown) {
   const s = String((e as Error)?.message || e);
   return /google_search|googleSearch|tool|grounding/i.test(s) && /not supported|not available|invalid|permission|quota/i.test(s);
+}
+function isBusy(e: unknown) {
+  return /high demand|overloaded|UNAVAILABLE|503/i.test(String((e as Error)?.message || e));
+}
+function isTimeout(e: unknown) {
+  const s = String((e as Error)?.name || "") + String((e as Error)?.message || e);
+  return /abort|timeout|timed out/i.test(s);
 }
 // Free keys get "limit: 0" for models that aren't on the free tier.
 function isZeroQuota(e: unknown) {
@@ -76,6 +95,7 @@ export async function generate(opts: GenOptions): Promise<GenResult> {
             temperature: opts.temperature ?? 0.2,
             tools: useSearch ? [{ googleSearch: {} }] : undefined,
             ...(opts.json ? { responseMimeType: "application/json", responseJsonSchema: opts.json.schema } : {}),
+            abortSignal: AbortSignal.timeout(REQUEST_TIMEOUT_MS + 5_000),
           },
         });
         runtimeState.workingModel = model;
@@ -97,7 +117,10 @@ export async function generate(opts: GenOptions): Promise<GenResult> {
       } catch (e) {
         lastErr = e;
         if (useSearch && (isToolProblem(e) || isRateLimit(e))) {
-          if (!runtimeState.searchBroken) console.log("[gemini] Google Search isn't available on this key; continuing without it.");
+          if (!runtimeState.searchBroken) {
+            console.log("[gemini] Google Search isn't available on this key; continuing without it.");
+            runtimeState.onNote?.("Google Search isn't available on this API key, continuing without it");
+          }
           // Search grounding has its own (often zero) quota on free keys.
           // Retry the same model without it; the agent falls back to fetching docs itself.
           runtimeState.searchBroken = true;
@@ -105,6 +128,7 @@ export async function generate(opts: GenOptions): Promise<GenResult> {
           continue;
         }
         console.error(`[gemini] ${model} failed: ${shortError(e)}`);
+        runtimeState.onNote?.(`${model} ${isBusy(e) ? "is busy" : isTimeout(e) ? "timed out" : "failed"}, trying another model`);
         if (isModelMissing(e) || isZeroQuota(e)) break; // this model isn't usable with this key
         if (isRateLimit(e) && attempt === 0) {
           await new Promise((r) => setTimeout(r, 3000));
