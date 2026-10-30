@@ -79,6 +79,7 @@ export function slugify(s: string) {
 
 export async function runAgent(query: string, emit: Emit, opts: { reservedSlugs?: Set<string> } = {}): Promise<Guide> {
   runtimeState.searchBroken = false;
+  runtimeState.onNote = (message) => emit({ type: "log", message });
   const sourceMap = new Map<string, Source>();
   const addSource = (url: string, title: string, official: boolean) => {
     if (!url || !url.startsWith("http") || url.includes("grounding-api-redirect")) return;
