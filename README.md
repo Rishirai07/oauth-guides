@@ -7,8 +7,8 @@ There are two parts:
 - A small library of guides I researched by hand. I picked six providers that cover the whole range from easy to painful: GitHub, Notion, Slack, Microsoft Outlook, Gmail and LinkedIn.
 - A research agent that writes a guide for any other app while you watch. Type a name or a URL and you get a guide in one to two minutes.
 
-Live demo: `<your Vercel URL>`
-To try it, open [/guides/gmail](/guides/gmail), or type something that isn't in the library (HubSpot, zoom.us, Spotify) into the search box on the home page.
+Live demo: https://oauth-guides-lime.vercel.app
+To try it, open [the Gmail guide](https://oauth-guides-lime.vercel.app/guides/gmail), or type something that isn't in the library (HubSpot, zoom.us, Spotify) into the search box on the home page.
 
 ## What I found when I looked into the problem
 
