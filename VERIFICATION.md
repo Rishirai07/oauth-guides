@@ -85,12 +85,19 @@ Note: Slack's discovery document only covers "Sign in with Slack" (openid/connec
 
 ## Setup attempts
 
-These take about 45 minutes with free accounts. Each one turns a "provider docs" claim into a tested one.
-
-- [ ] GitHub: create an OAuth App with two callback URLs. Check the 10-URL limit, and that a new app issues an expiring token plus a refresh token.
-- [ ] Notion: create a public connection. Note whether the authorization URL is available before any review, and whether the token response includes `refresh_token`.
-- [ ] Slack: create an app from a manifest and turn on public distribution. Confirm nothing asks for a review.
-- [ ] Google: create a project, leave the consent screen in Testing, add `gmail.readonly`. Confirm it's labelled restricted and that the unverified-app warning appears.
+- [x] GitHub: create an OAuth App, add two redirect URIs, check token expiry, check for a review step.
+  Done 2 Nov 2026
+  - The registration form says "You may add up to 10 redirect URIs" and has an "Add redirect URI"
+    button; a second URI was accepted. "Allow wildcard matching" is a per-URI checkbox, off by default.
+  - "Expire user access tokens" is ticked by default.
+  - The app was usable immediately ("Application created successfully"). The only review-related
+    option is the optional "List this application in the Marketplace" button.
+  - Real token exchange: expires_in 28800 (8 hours), a refresh_token was returned, and
+    refresh_token_expires_in was 15638400 (181 days). Token prefix gho_.
+  - The redirect after consent carried an extra iss=https://github.com/login/oauth parameter
+    (RFC 9207 issuer identification). The guide didn't mention this.
+  All of the guide's claims held. Two wording fixes: GitHub now says "Redirect URIs", not
+  "callback URLs", and Delete has moved under an "Advanced" tab.
 
 ## Spot checks on generated guides
 
