@@ -106,6 +106,8 @@ Docs sites that only render with JavaScript give the fetcher very little text. W
 
 Without Redis, generated guides live in memory and disappear when the server instance restarts. Share links keep working because they carry the guide with them. The per-IP rate limit is also in memory, so on serverless it's per instance. It slows abuse down but won't stop a determined attempt.
 
+The GitHub and Notion guides still use some older wording (for example "callback URL" instead of "Redirect URIs", "public connection" instead of "OAuth connection"). VERIFICATION.md records what the real setup screens show today.
+
 ## What I'd do next
 
 Re-run the probes on a schedule and watch provider changelogs, so a guide gets flagged when something it relies on changes. Use a browser agent with test accounts to go through the real setup flows and turn more "docs" claims into "tested" ones. Add a mode where you paste the scopes you plan to request and get back your exact review path. And grow the library toward 100 guides by letting the agent write first drafts and having a person check the inferred parts.

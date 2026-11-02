@@ -99,10 +99,27 @@ Note: Slack's discovery document only covers "Sign in with Slack" (openid/connec
   All of the guide's claims held. Two wording fixes: GitHub now says "Redirect URIs", not
   "callback URLs", and Delete has moved under an "Advanced" tab.
 
+  - [x] Notion: create an OAuth connection and check the guide's claims.
+  Done 2 Nov 2026.
+  - The authorization URL was shown immediately after creating the connection, with no review
+    or submission step. This resolves the open question from Notion's own docs, which say it
+    appears only "after a public connection is submitted for review"; that line is out of date.
+  - "Installable in" (installation scope) showed as a fixed "Public" label after creation.
+    Clicking it did nothing, so the scope can't be changed later. Confirms the guide.
+  - Notion's UI has changed since the guide was written: the choice is now "API token" vs
+    "OAuth" (not "internal" vs "public"), the portal is at app.notion.com/developers/connections,
+    and creating one only asks for a name, scope and redirect URI.
+  - Redirect URL rules shown on the page: HTTPS, no fragments, relative paths, wildcards or
+    public IP addresses.
+- [ ] Slack and Google: not attempted. Their claims rest on provider docs only.
+
 ## Spot checks on generated guides
 
 Generate guides for two or three apps that aren't in the library (HubSpot, Zoom and Spotify are good ones). For each, check three claims against the sources the guide cites and note whether each was right, wrong or unsupported.
 
 | App | Claim | Result | Notes |
 |---|---|---|---|
-| | | | |
+| HubSpot | "Discovery: Not provided by HubSpot" | Wrong | The live checks found OAuth metadata at app.hubspot.com and api.hubspot.com (the second points at HubSpot's MCP server). Fixed: the agent now overwrites endpoint fields with discovered values. |
+| HubSpot | Authorize/token URLs and PKCE S256 | Right | Matched the live discovery document. |
+| HubSpot | Difficulty and approval wait | Inconsistent | Two runs gave "Hard, up to 10 business days" and "Moderate, wait unknown". Model output varies between runs. |
+| HubSpot | Access tokens last 30 minutes | Unsupported | Marked "Inferred"; not checked against HubSpot's docs. |
